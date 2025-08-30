@@ -19,7 +19,7 @@ func main() {
 	// 初始化日志
 	logger.InitLogger(cfg.LogLevel)
 	
-	// 初始化认证模块
+	// 初始化认证模块（包括数据库）
 	auth.InitAuth(cfg.RootDir)
 	
 	// 创建 Gin 引擎

@@ -10,7 +10,30 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+
+	"USG-LEGO/internal/auth"
+	"USG-LEGO/internal/database"
 )
+
+// FileInfo 文件信息结构体
+type FileInfo struct {
+	Name    string    `json:"name"`
+	IsDir   bool      `json:"isDir"`
+	Size    int64     `json:"size"`
+	ModTime time.Time `json:"modTime"`
+}
+
+// IsPublic 检查路径是否为公共路径
+func IsPublic(path string) bool {
+	// 使用auth包中的实现
+	return auth.IsPublic(path)
+}
+
+// ValidateAPIKey 验证 API Key
+func ValidateAPIKey(apiKey string) bool {
+	// 使用数据库验证API密钥
+	return database.ValidateAPIKey(apiKey)
+}
 
 // GetFile handles GET /api/files?path=... requests
 // @Summary Get file content
@@ -146,26 +169,4 @@ func GetFile(c *gin.Context) {
 	c.Header("Content-Type", "application/octet-stream")
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileInfo.Name()))
 	c.File(fullPath)
-}
-
-// FileInfo 文件信息结构体
-type FileInfo struct {
-	Name    string    `json:"name"`
-	IsDir   bool      `json:"isDir"`
-	Size    int64     `json:"size"`
-	ModTime time.Time `json:"modTime"`
-}
-
-// IsPublic 检查路径是否为公共路径
-func IsPublic(path string) bool {
-	// 简单实现：检查路径是否以 /public 开头
-	cleanPath := filepath.Clean(path)
-	return strings.HasPrefix(cleanPath, "/public")
-}
-
-// ValidateAPIKey 验证 API Key
-func ValidateAPIKey(apiKey string) bool {
-	// 简单实现：检查 API Key 是否为 "test-key"
-	// 实际实现应该查询数据库验证 API Key
-	return apiKey == "test-key"
 }
