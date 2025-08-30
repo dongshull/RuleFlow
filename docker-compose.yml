@@ -1,0 +1,94 @@
+# Docker Compose 版本声明
+# version 3.8 是一个稳定且功能丰富的版本，支持大多数 Docker Compose 功能
+version: '3.8'
+
+# 服务定义部分
+# 在这里定义所有需要运行的服务
+services:
+  # USG-LEGO 主服务定义
+  usg-lego:
+    # 构建配置
+    # 指定构建上下文和 Dockerfile 路径
+    build:
+      # 构建上下文路径，使用当前目录 (.)
+      context: .
+      # Dockerfile 路径，相对于上下文路径
+      dockerfile: Dockerfile
+    
+    # 容器名称
+    # 为容器指定一个易于识别的名称，方便管理和调试
+    container_name: usg-lego
+    
+    # 端口映射
+    # 将宿主机端口映射到容器端口
+    ports:
+      # 格式: "宿主机端口:容器端口"
+      # 将宿主机的 8080 端口映射到容器的 8080 端口
+      - "8080:8080"
+    
+    # 环境变量配置
+    # 设置容器内应用程序所需的环境变量
+    environment:
+      # 配置文件根目录
+      # 指定应用程序查找配置文件的根目录路径
+      - ROOT_DIR=/configs
+      
+      # 监听地址和端口
+      # 指定应用程序监听的地址和端口
+      # 注意：这里必须与 ports 配置中的容器端口保持一致
+      - LISTEN=:8080
+      
+      # 日志级别
+      # 设置应用程序的日志输出级别，可选: debug, info, warn, error
+      - LOG_LEVEL=info
+      
+      # API 密钥
+      # 设置初始 API 密钥，用于访问私有资源
+      # 在生产环境中应替换为更安全的密钥
+      - API_KEY=your-api-key-here
+    
+    # 数据卷映射
+    # 将宿主机目录映射到容器目录，实现数据持久化和配置共享
+    volumes:
+      # 格式: "宿主机路径:容器路径"
+      # 将宿主机的 ./configs 目录映射到容器的 /configs 目录
+      # 这样可以在宿主机上直接修改配置文件，而无需进入容器
+      - ./configs:/configs
+    
+    # 重启策略
+    # 定义容器在不同情况下的重启行为
+    # unless-stopped: 在容器退出时总是重启，除非容器被手动停止
+    restart: unless-stopped
+    
+    # 健康检查
+    # 定期检查容器内应用程序的健康状态
+    healthcheck:
+      # 健康检查命令
+      # 使用 wget 命令检查 /health 接口是否返回 200 状态码
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      
+      # 检查间隔
+      # 每 30 秒执行一次健康检查
+      interval: 30s
+      
+      # 超时时间
+      # 如果健康检查命令在 10 秒内未完成，则认为检查失败
+      timeout: 10s
+      
+      # 重试次数
+      # 如果连续 3 次健康检查失败，则认为容器不健康
+      retries: 3
+      
+      # 启动宽限期
+      # 容器启动后等待 40 秒再开始执行健康检查
+      # 给应用程序足够的时间完成初始化
+      start_period: 40s
+
+# 数据卷定义部分
+# 定义命名数据卷，用于数据持久化
+volumes:
+  # 配置数据卷
+  configs:
+    # 使用本地驱动程序
+    # 将数据存储在宿主机的文件系统中
+    driver: local

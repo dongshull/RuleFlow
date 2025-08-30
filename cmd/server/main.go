@@ -1,8 +1,6 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
 
@@ -34,11 +32,6 @@ func main() {
 	
 	// 注册路由
 	routes.RegisterRoutes(router, cfg)
-	
-	// 添加一个简单的静态文件服务
-	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "<h1>Welcome to USG-LEGO</h1><p>This is a single file hosting service for iOS proxy tools.</p>")
-	})
 	
 	// 启动服务
 	log.Info().Str("addr", cfg.Listen).Msg("Starting server")

@@ -2,6 +2,8 @@ package routes
 
 import (
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -18,15 +20,34 @@ func RegisterRoutes(router *gin.Engine, cfg *config.Config) {
 		c.String(http.StatusOK, "ok")
 	})
 	
+	// 提供静态文件服务
+	webDir := filepath.Join(".", "web", "dist")
+	if _, err := os.Stat(webDir); err == nil {
+		// 为根路径提供index.html
+		router.GET("/", func(c *gin.Context) {
+			c.File(filepath.Join(webDir, "index.html"))
+		})
+		
+		// 为其他静态资源提供服务
+		router.Static("/css", filepath.Join(webDir, "css"))
+		router.Static("/js", filepath.Join(webDir, "js"))
+		router.Static("/assets", filepath.Join(webDir, "assets"))
+	} else {
+		// 如果web目录不存在，则提供一个简单的页面
+		router.GET("/", func(c *gin.Context) {
+			c.String(http.StatusOK, "<h1>Welcome to USG-LEGO</h1><p>This is a single file hosting service for iOS proxy tools.</p>")
+		})
+	}
+	
 	// 文件相关接口
-	api := router.Group("/api")
+	apiGroup := router.Group("/api")
 	{
-		api.GET("/files", files.GetFile)
+		apiGroup.GET("/files", files.GetFile)
 		
 		// API密钥管理接口
-		api.GET("/keys", getAPIKeys)
-		api.POST("/keys", createAPIKey)
-		api.DELETE("/keys/:id", deleteAPIKey)
+		apiGroup.GET("/keys", getAPIKeys)
+		apiGroup.POST("/keys", createAPIKey)
+		apiGroup.DELETE("/keys/:id", deleteAPIKey)
 	}
 	
 	// 原始文件访问接口
@@ -35,6 +56,7 @@ func RegisterRoutes(router *gin.Engine, cfg *config.Config) {
 		c.String(http.StatusOK, "Raw file access placeholder")
 	})
 }
+
 
 // getAPIKeys 获取所有API密钥
 func getAPIKeys(c *gin.Context) {

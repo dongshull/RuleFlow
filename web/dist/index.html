@@ -1,10 +1,399 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>GinFileHub</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USG-LEGO 管理面板</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Welcome to GinFileHub</h1>
-    <p>This is a single file hosting service for iOS proxy tools.</p>
+    <div id="app">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-header">
+                    <h1><i class="fas fa-file-code"></i> USG-LEGO</h1>
+                </div>
+                <div class="nav-menu">
+                    <button id="nav-dashboard" class="nav-link active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i> 仪表板
+                    </button>
+                    <button id="nav-apikeys" class="nav-link" data-page="apikeys">
+                        <i class="fas fa-key"></i> API密钥
+                    </button>
+                    <button id="nav-files" class="nav-link" data-page="files">
+                        <i class="fas fa-folder"></i> 文件管理
+                    </button>
+                    <button id="nav-statistics" class="nav-link" data-page="statistics">
+                        <i class="fas fa-chart-bar"></i> 访问统计
+                    </button>
+                    <button id="nav-settings" class="nav-link" data-page="settings">
+                        <i class="fas fa-cog"></i> 设置
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 仪表板页面 -->
+            <div id="dashboard-page" class="page active">
+                <div class="container">
+                    <div class="page-header">
+                        <h2><i class="fas fa-tachometer-alt"></i> 仪表板</h2>
+                        <p>系统概览和统计信息</p>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="api-keys-count">0</h3>
+                                <p>API密钥</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="files-count">0</h3>
+                                <p>文件数量</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="public-files-count">0</h3>
+                                <p>公共文件</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon bg-danger">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="private-files-count">0</h3>
+                                <p>私有文件</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-activity">
+                        <h3><i class="fas fa-history"></i> 最近活动</h3>
+                        <div id="activity-list" class="activity-list">
+                            <p class="no-data">暂无活动记录</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API密钥管理页面 -->
+            <div id="apikeys-page" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h2><i class="fas fa-key"></i> API密钥管理</h2>
+                        <p>管理您的API密钥</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>管理员API密钥</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="admin-api-key">管理员API密钥:</label>
+                                <div class="input-group">
+                                    <input type="password" id="admin-api-key" placeholder="请输入管理员API密钥">
+                                    <button id="toggle-admin-key-visibility" class="btn btn-icon">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="form-text">需要管理员权限才能管理API密钥</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>API密钥列表</h3>
+                            <button id="add-api-key-btn" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> 添加API密钥
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="api-keys-table" class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Token</th>
+                                            <th>备注</th>
+                                            <th>创建时间</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- API密钥数据将通过JavaScript动态加载 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div id="no-api-keys-message" class="empty-state">
+                                <i class="fas fa-key fa-3x"></i>
+                                <p>暂无API密钥</p>
+                                <p>点击"添加API密钥"按钮创建新的API密钥</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 文件管理页面 -->
+            <div id="files-page" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h2><i class="fas fa-folder"></i> 文件管理</h2>
+                        <p>浏览和管理文件</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>文件浏览器</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="file-path">文件路径:</label>
+                                <div class="input-group">
+                                    <input type="text" id="file-path" placeholder="例如: /public/public.conf">
+                                    <button id="browse-file-btn" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> 浏览
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="file-api-key">API密钥 (访问私有文件时需要):</label>
+                                <div class="input-group">
+                                    <input type="password" id="file-api-key" placeholder="请输入API密钥">
+                                    <button id="toggle-file-key-visibility" class="btn btn-icon">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <button id="get-file-btn" class="btn btn-secondary">
+                                <i class="fas fa-download"></i> 获取文件
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>文件内容</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="file-content" class="file-content hidden">
+                                <pre id="file-content-text"></pre>
+                            </div>
+                            <div id="no-file-content" class="empty-state">
+                                <i class="fas fa-file-alt fa-3x"></i>
+                                <p>暂无文件内容</p>
+                                <p>请输入文件路径并点击"获取文件"按钮</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 访问统计页面 -->
+            <div id="statistics-page" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h2><i class="fas fa-chart-bar"></i> 访问统计</h2>
+                        <p>文件访问统计信息</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>统计筛选</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="stats-file-path">文件路径:</label>
+                                <input type="text" id="stats-file-path" placeholder="例如: /public/public.conf">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="stats-date-range">时间范围:</label>
+                                <select id="stats-date-range">
+                                    <option value="all">全部时间</option>
+                                    <option value="today">今天</option>
+                                    <option value="week">最近一周</option>
+                                    <option value="month">最近一个月</option>
+                                </select>
+                            </div>
+                            
+                            <button id="filter-stats-btn" class="btn btn-primary">
+                                <i class="fas fa-filter"></i> 筛选
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-primary">
+                                <i class="fas fa-mouse-pointer"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-requests">0</h3>
+                                <p>总访问次数</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon bg-success">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="unique-ips">0</h3>
+                                <p>独立IP数</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon bg-warning">
+                                <i class="fas fa-file"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="unique-files">0</h3>
+                                <p>文件数</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon bg-danger">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="unique-paths">0</h3>
+                                <p>路径数</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>访问记录</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="access-logs-table" class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>时间</th>
+                                            <th>IP地址</th>
+                                            <th>文件路径</th>
+                                            <th>请求方法</th>
+                                            <th>状态码</th>
+                                            <th>用户代理</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- 访问记录将通过JavaScript动态加载 -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div id="no-access-logs-message" class="empty-state">
+                                <i class="fas fa-chart-bar fa-3x"></i>
+                                <p>暂无访问记录</p>
+                                <p>请筛选条件后查看统计数据</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设置页面 -->
+            <div id="settings-page" class="page">
+                <div class="container">
+                    <div class="page-header">
+                        <h2><i class="fas fa-cog"></i> 设置</h2>
+                        <p>配置系统设置</p>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>系统配置</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="api-base-url">API基础URL:</label>
+                                <input type="text" id="api-base-url" value="/api" readonly>
+                                <small class="form-text">API接口的基础URL</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="theme-selector">主题:</label>
+                                <select id="theme-selector">
+                                    <option value="light">浅色主题</option>
+                                    <option value="dark">深色主题</option>
+                                </select>
+                            </div>
+                            
+                            <button id="save-settings-btn" class="btn btn-primary">
+                                <i class="fas fa-save"></i> 保存设置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 添加API密钥模态框 -->
+        <div id="add-api-key-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-key"></i> 添加API密钥</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="new-api-key-note">备注:</label>
+                        <input type="text" id="new-api-key-note" placeholder="请输入备注信息">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-api-key-token">Token (可选，留空则自动生成):</label>
+                        <input type="text" id="new-api-key-token" placeholder="请输入API密钥">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-add-api-key" class="btn btn-secondary">取消</button>
+                    <button id="confirm-add-api-key" class="btn btn-primary">添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 模块 -->
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/pages/dashboard.js"></script>
+    <script src="js/pages/apikeys.js"></script>
+    <script src="js/pages/files.js"></script>
+    <script src="js/pages/statistics.js"></script>
+    <script src="js/pages/settings.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,42 @@
+# Docker Compose 覆盖配置示例文件
+# 这个文件展示了如何通过覆盖配置来自定义文件夹映射
+# 使用方法：
+# 1. 复制此文件为 docker-compose.override.yml
+# 2. 根据需要修改其中的路径配置
+# 3. 运行 docker-compose up -d 启动服务
+
+version: '3.8'
+
+services:
+  usg-lego:
+    # 环境变量配置（覆盖默认配置）
+    environment:
+      # 可以在这里修改环境变量，这些会覆盖 docker-compose.yml 中的设置
+      - LOG_LEVEL=debug  # 更详细的日志输出用于调试
+      
+    # 数据卷映射（添加额外的映射或覆盖默认映射）
+    volumes:
+      # 下面的示例展示了如何将宿主机上的特定文件夹映射到容器中的特定路径
+      # 这种方式可以实现更精细的文件夹管理
+      
+      # 示例1：将宿主机的公共文件夹映射到容器的公共路径
+      # 假设宿主机上有一个专门存放公共文件的文件夹 /home/user/public-files
+      # 可以将其映射到容器的 /configs/public 路径
+      # - /home/user/public-files:/configs/public
+      
+      # 示例2：将宿主机的私有文件夹映射到容器的私有路径
+      # 假设宿主机上有一个专门存放私有文件的文件夹 /home/user/private-files
+      # 可以将其映射到容器的 /configs/private 路径
+      # - /home/user/private-files:/configs/private
+      
+      # 示例3：映射模块文件夹
+      # 假设宿主机上有一个专门存放模块文件的文件夹 /home/user/modules
+      # 可以将其映射到容器的 /configs/modules 路径
+      # - /home/user/modules:/configs/modules
+      
+      # 注意事项：
+      # 1. 宿主机路径可以是绝对路径或相对路径
+      # 2. 如果使用相对路径，是相对于 docker-compose.yml 文件所在目录
+      # 3. 宿主机上的文件夹必须存在，否则 Docker 会创建一个空目录
+      # 4. 容器中的路径会被宿主机路径的内容完全替换
+      # 5. 映射后，对宿主机文件夹的修改会立即反映在容器中

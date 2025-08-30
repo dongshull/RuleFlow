@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USG-LEGO 管理面板</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-file-code"></i> USG-LEGO 管理面板</h1>
+            <p>API密钥和文件管理</p>
+        </header>
+
+        <main>
+            <section class="api-key-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-key"></i> API密钥管理</h2>
+                    <button id="addApiKeyBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> 添加API密钥
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="adminApiKey">管理员API密钥:</label>
+                            <div class="input-group">
+                                <input type="password" id="adminApiKey" placeholder="请输入管理员API密钥">
+                                <button id="toggleAdminKeyVisibility" class="btn btn-icon">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <table id="apiKeyTable" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Token</th>
+                                    <th>备注</th>
+                                    <th>创建时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- API密钥数据将通过JavaScript动态加载 -->
+                            </tbody>
+                        </table>
+                        
+                        <div id="noApiKeysMessage" class="empty-state">
+                            <i class="fas fa-key fa-3x"></i>
+                            <p>暂无API密钥</p>
+                            <p>点击"添加API密钥"按钮创建新的API密钥</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="file-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-folder"></i> 文件管理</h2>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="filePath">文件路径:</label>
+                            <input type="text" id="filePath" placeholder="例如: /public/public.conf">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fileApiKey">API密钥 (访问私有文件时需要):</label>
+                            <div class="input-group">
+                                <input type="password" id="fileApiKey" placeholder="请输入API密钥">
+                                <button id="toggleFileKeyVisibility" class="btn btn-icon">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button id="getFileBtn" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> 获取文件
+                        </button>
+                        
+                        <div id="fileContent" class="file-content hidden">
+                            <h3>文件内容:</h3>
+                            <pre id="fileContentText"></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 USG-LEGO. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- 添加API密钥模态框 -->
+    <div id="addApiKeyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> 添加API密钥</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="newApiKeyNote">备注:</label>
+                    <input type="text" id="newApiKeyNote" placeholder="请输入备注信息">
+                </div>
+                
+                <div class="form-group">
+                    <label for="newApiKeyToken">Token (可选，留空则自动生成):</label>
+                    <input type="text" id="newApiKeyToken" placeholder="请输入API密钥">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelAddApiKey" class="btn btn-secondary">取消</button>
+                <button id="confirmAddApiKey" class="btn btn-primary">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
